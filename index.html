@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>ANIMEX — Premium Anime Discovery</title>
+<meta name="description" content="Discover anime across Netflix, Crunchyroll, Prime Video, Disney+ and more. Legal streaming links for every title.">
+<meta property="og:title" content="ANIMEX — Premium Anime Discovery">
+<meta property="og:description" content="Find what to watch across all major legal streaming platforms.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@300;400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/animations.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "ANIMEX",
+  "description": "Premium anime discovery hub with legal streaming links",
+  "url": "https://animex.app"
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<canvas id="particles-canvas" aria-hidden="true"></canvas>
+<canvas id="slash-canvas" aria-hidden="true"></canvas>
+
+<div id="cursor-outer" aria-hidden="true"></div>
+<div id="cursor-inner" aria-hidden="true"></div>
+
+<!-- LOADER -->
+<div id="loader" role="status" aria-live="polite">
+  <div class="loader-logo">ANIMEX</div>
+  <div class="loader-subtitle">Premium Anime Discovery</div>
+  <div class="loader-progress-wrap">
+    <div class="loader-bar-track"><div class="loader-bar-fill"></div></div>
+    <div class="loader-percentage" id="loader-pct">0%</div>
+  </div>
+</div>
+
+<!-- REDIRECT OVERLAY -->
+<div id="redirect-overlay" aria-hidden="true">
+  <div class="redirect-ring"></div>
+  <div class="redirect-label">Redirecting to</div>
+  <div class="redirect-platform" id="redirect-platform-name"></div>
+</div>
+
+<!-- TOAST -->
+<div id="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+<!-- ACHIEVEMENT -->
+<div class="achievement-pop" id="achievement-pop" role="status" aria-live="polite">
+  <div class="ach-icon" id="ach-icon">🏆</div>
+  <div>
+    <div class="ach-title">Achievement Unlocked</div>
+    <div class="ach-label" id="ach-label"></div>
+    <div class="ach-desc" id="ach-desc"></div>
+  </div>
+</div>
+
+<!-- SCROLL TOP -->
+<button id="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Scroll to top">↑</button>
+
+<!-- NAV -->
+<nav id="navbar" role="navigation" aria-label="Main navigation">
+  <div class="nav-logo">ANIMEX</div>
+  <div class="nav-center">
+    <a class="nav-link active" href="#hero" onclick="smoothNav(event,'hero')">Home</a>
+    <a class="nav-link" href="#trending" onclick="smoothNav(event,'trending')">Trending</a>
+    <a class="nav-link" href="#discover" onclick="smoothNav(event,'discover')">Discover</a>
+    <a class="nav-link" href="#top-rated" onclick="smoothNav(event,'top-rated')">Top Rated</a>
+  </div>
+  <div class="nav-right">
+    <button class="nav-icon-btn" onclick="toggleSearch()" title="Search (Ctrl+K)" aria-label="Search">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    </button>
+    <button class="nav-icon-btn" onclick="loadRandomAnime()" title="Random Anime" aria-label="Random Anime">🎲</button>
+    <button class="nav-watchlist-btn" onclick="document.getElementById('watchlist-section').scrollIntoView({behavior:'smooth'})" aria-label="My Watchlist">
+      <span>♥ List</span>
+      <span class="watchlist-count-badge" id="watchlist-count-nav">0</span>
+    </button>
+  </div>
+</nav>
+
+<!-- BOTTOM NAV (mobile) -->
+<div id="bottom-nav" role="navigation" aria-label="Mobile navigation">
+  <button class="bottom-nav-btn active" onclick="smoothNav(null,'hero')"><span class="icon">⬡</span>Home</button>
+  <button class="bottom-nav-btn" onclick="toggleSearch()"><span class="icon">🔍</span>Search</button>
+  <button class="bottom-nav-btn" onclick="smoothNav(null,'discover')"><span class="icon">✦</span>Discover</button>
+  <button class="bottom-nav-btn" onclick="smoothNav(null,'watchlist-section')"><span class="icon">♥</span>List</button>
+  <button class="bottom-nav-btn" onclick="loadRandomAnime()"><span class="icon">🎲</span>Random</button>
+</div>
+
+<!-- SEARCH OVERLAY -->
+<div id="search-overlay" role="dialog" aria-label="Search" aria-hidden="true">
+  <div class="search-wrap">
+    <div class="search-field">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="search-input" placeholder="Search anime…" autocomplete="off" aria-label="Search anime">
+      <button class="search-close-btn" onclick="toggleSearch()" aria-label="Close search">✕</button>
+    </div>
+    <div class="search-hint">Press <kbd>Enter</kbd> to search · <kbd>Esc</kbd> to close</div>
+    <div id="search-suggestions" role="listbox"></div>
+  </div>
+</div>
+
+<main id="main">
+
+<!-- HERO -->
+<section id="hero" aria-label="Featured anime">
+  <div class="hero-bg-layer">
+    <div class="hero-featured-img" id="hero-bg-img"></div>
+    <div class="hero-gradient"></div>
+    <div class="hero-noise"></div>
+  </div>
+  <div class="hero-content-wrap">
+    <div class="hero-left">
+      <div class="hero-featured-label">
+        <span class="hero-featured-dot"></span>
+        <span id="hero-featured-label-text">Featured Anime</span>
+      </div>
+      <h1 class="hero-title" id="hero-title-el">
+        <span class="hero-title-main" id="hero-title-main">Discover Your Next</span>
+        <span class="hero-title-accent" id="hero-title-accent">Anime Obsession</span>
+        <span class="hero-title-jp" id="hero-title-jp">アニメの世界へようこそ</span>
+      </h1>
+      <p class="hero-desc" id="hero-desc">Explore thousands of anime across every genre and instantly find which platform streams them — Netflix, Crunchyroll, Prime Video, and more.</p>
+      <div class="hero-meta" id="hero-meta">
+        <div class="hero-score" id="hero-score">
+          <span>⭐</span><span id="hero-score-val">—</span>
+          <span class="hero-score-label">/10</span>
+        </div>
+        <div class="hero-badge" id="hero-badge-type">TV Series</div>
+        <div class="hero-badge" id="hero-badge-year">2024</div>
+        <div class="hero-badge" id="hero-badge-eps">— eps</div>
+      </div>
+      <div class="hero-actions">
+        <button class="btn-hero-primary" onclick="openCurrentFeatured()">
+          <span class="btn-icon">▶</span> Where to Watch
+        </button>
+        <button class="btn-hero-secondary" onclick="smoothNav(null,'discover')">
+          <span class="btn-icon">✦</span> Explore All
+        </button>
+      </div>
+      <div class="hero-nav-dots" id="hero-dots"></div>
+    </div>
+    <div class="hero-right" aria-hidden="true">
+      <div class="hero-stack-card" id="hsc-0" style="width:150px;height:210px;right:160px;top:50px;transform:rotate(-8deg);"></div>
+      <div class="hero-stack-card" id="hsc-1" style="width:160px;height:226px;right:60px;top:20px;transform:rotate(4deg);"></div>
+      <div class="hero-stack-card" id="hsc-2" style="width:140px;height:196px;right:10px;top:100px;transform:rotate(10deg);"></div>
+    </div>
+  </div>
+  <div class="hero-stats-bar">
+    <div class="hero-stat"><div class="n">10K+</div><div class="l">Anime Titles</div></div>
+    <div class="hero-stat"><div class="n">6</div><div class="l">Platforms</div></div>
+    <div class="hero-stat"><div class="n">100%</div><div class="l">Legal</div></div>
+    <div class="hero-stat"><div class="n">Free</div><div class="l">No Account</div></div>
+  </div>
+</section>
+
+<!-- PLATFORM TICKER -->
+<div class="platform-ticker" aria-hidden="true">
+  <div class="ticker-track" id="ticker-track">
+    <div class="ticker-item netflix"><span class="ticker-dot"></span>NETFLIX</div>
+    <div class="ticker-item crunchyroll"><span class="ticker-dot"></span>CRUNCHYROLL</div>
+    <div class="ticker-item prime"><span class="ticker-dot"></span>PRIME VIDEO</div>
+    <div class="ticker-item disney"><span class="ticker-dot"></span>DISNEY+</div>
+    <div class="ticker-item hidive"><span class="ticker-dot"></span>HIDIVE</div>
+    <div class="ticker-item youtube"><span class="ticker-dot"></span>YOUTUBE</div>
+    <div class="ticker-item netflix"><span class="ticker-dot"></span>NETFLIX</div>
+    <div class="ticker-item crunchyroll"><span class="ticker-dot"></span>CRUNCHYROLL</div>
+    <div class="ticker-item prime"><span class="ticker-dot"></span>PRIME VIDEO</div>
+    <div class="ticker-item disney"><span class="ticker-dot"></span>DISNEY+</div>
+    <div class="ticker-item hidive"><span class="ticker-dot"></span>HIDIVE</div>
+    <div class="ticker-item youtube"><span class="ticker-dot"></span>YOUTUBE</div>
+  </div>
+</div>
+
+<!-- MOOD SELECTOR -->
+<div class="mood-section" id="mood-section">
+  <h3 class="mood-heading">What's your <em>mood</em> today?</h3>
+  <div class="moods-row">
+    <button class="mood-btn" onclick="applyMood(this,'action')"><span class="mood-emoji">⚡</span>Action</button>
+    <button class="mood-btn" onclick="applyMood(this,'romance')"><span class="mood-emoji">💕</span>Romance</button>
+    <button class="mood-btn" onclick="applyMood(this,'dark')"><span class="mood-emoji">🌑</span>Dark & Intense</button>
+    <button class="mood-btn" onclick="applyMood(this,'comedy')"><span class="mood-emoji">😄</span>Comedy</button>
+    <button class="mood-btn" onclick="applyMood(this,'fantasy')"><span class="mood-emoji">🐉</span>Fantasy</button>
+    <button class="mood-btn" onclick="applyMood(this,'chill')"><span class="mood-emoji">🍃</span>Chill</button>
+    <button class="mood-btn" onclick="applyMood(this,'scifi')"><span class="mood-emoji">🚀</span>Sci-Fi</button>
+    <button class="mood-btn" onclick="applyMood(this,'horror')"><span class="mood-emoji">💀</span>Horror</button>
+  </div>
+</div>
+
+<div class="neon-sep"></div>
+
+<!-- TRENDING -->
+<section class="section" id="trending" aria-label="Trending anime">
+  <div class="section-header">
+    <div>
+      <span class="section-label">🔥 Hot Right Now</span>
+      <h2 class="section-title">Trending Anime</h2>
+    </div>
+  </div>
+  <div id="trending-cards" class="cards-row"></div>
+</section>
+
+<!-- DAILY PICK -->
+<div class="daily-pick-section" id="daily-section">
+  <div class="section-header" style="margin-bottom:18px">
+    <div>
+      <span class="section-label">📅 Every Day New Pick</span>
+      <h2 class="section-title">Daily Recommendation</h2>
+    </div>
+  </div>
+  <div class="daily-card" id="daily-card">
+    <div class="daily-poster"><div class="skel-poster" style="width:120px;height:180px"></div></div>
+    <div class="daily-info">
+      <span class="daily-label">Loading daily pick…</span>
+    </div>
+  </div>
+</div>
+
+<!-- RECENTLY VIEWED -->
+<section id="recently-section" style="display:none;" class="section" aria-label="Recently viewed">
+  <div class="section-header">
+    <div>
+      <span class="section-label">🕐 Your History</span>
+      <h2 class="section-title">Recently Viewed</h2>
+    </div>
+    <button class="section-cta" onclick="clearRecent()">Clear</button>
+  </div>
+  <div id="recently-cards" class="cards-row"></div>
+</section>
+
+<!-- SMART RECS -->
+<section class="rec-section" id="smart-recs-section" style="display:none;" aria-label="Smart recommendations">
+  <div class="rec-section-header">
+    <div>
+      <span class="rec-because" id="rec-because-label">BECAUSE YOU WATCHED</span>
+      <h2 class="section-title" id="rec-section-title">Similar Anime</h2>
+    </div>
+  </div>
+  <div id="smart-recs-cards" class="cards-row"></div>
+</section>
+
+<div class="neon-sep"></div>
+
+<!-- DISCOVER -->
+<section class="section" id="discover" aria-label="Discover anime">
+  <div class="section-header">
+    <div>
+      <span class="section-label">✦ Explore All</span>
+      <h2 class="section-title">Discover Anime</h2>
+    </div>
+  </div>
+  <div class="filter-bar" id="discover-filters">
+    <button class="filter-pill active" onclick="setDiscoverFilter(this,'all')">All</button>
+    <button class="filter-pill" onclick="setDiscoverFilter(this,'airing')">Airing</button>
+    <button class="filter-pill" onclick="setDiscoverFilter(this,'movie')">Movies</button>
+    <div class="filter-sep"></div>
+    <select class="filter-select" id="genre-filter" onchange="applyDiscoverFilters()">
+      <option value="">All Genres</option>
+      <option value="1">Action</option>
+      <option value="2">Adventure</option>
+      <option value="4">Comedy</option>
+      <option value="8">Drama</option>
+      <option value="10">Fantasy</option>
+      <option value="14">Horror</option>
+      <option value="22">Romance</option>
+      <option value="24">Sci-Fi</option>
+      <option value="36">Slice of Life</option>
+      <option value="37">Supernatural</option>
+    </select>
+    <select class="filter-select" id="sort-filter" onchange="applyDiscoverFilters()">
+      <option value="score">Top Rated</option>
+      <option value="popularity">Most Popular</option>
+      <option value="start_date">Newest</option>
+    </select>
+    <select class="filter-select" id="platform-filter" onchange="applyDiscoverFilters()">
+      <option value="">All Platforms</option>
+      <option value="netflix">Netflix</option>
+      <option value="crunchyroll">Crunchyroll</option>
+      <option value="prime">Prime Video</option>
+      <option value="disney">Disney+</option>
+    </select>
+  </div>
+  <div class="discover-summary">
+    <span id="discover-summary-text">Loading recommendations...</span>
+    <button class="discover-reset-btn" onclick="resetDiscoverFilters()">Reset filters</button>
+  </div>
+  <div id="discover-cards" class="cards-grid"></div>
+  <div class="load-spinner" id="load-spinner" style="display:none"><div class="load-spinner-ring"></div></div>
+  <div class="load-more-wrap">
+    <button class="load-more-btn" id="load-more-btn" onclick="loadMoreDiscover()">Load More</button>
+  </div>
+</section>
+
+<!-- TOP RATED -->
+<section class="section" id="top-rated" aria-label="Top rated anime">
+  <div class="section-header">
+    <div>
+      <span class="section-label">⭐ Best Ever</span>
+      <h2 class="section-title">Top Rated</h2>
+    </div>
+  </div>
+  <div id="toprated-cards" class="cards-row"></div>
+</section>
+
+<!-- ANIME QUIZ -->
+<div class="quiz-section">
+  <div class="quiz-card">
+    <h2 class="quiz-title">What Should I Watch? 🎮</h2>
+    <p class="quiz-desc">Pick your vibe and we'll find your next anime obsession</p>
+    <div class="quiz-genres" id="quiz-genres">
+      <button class="quiz-option" onclick="toggleQuizOption(this,'action')">⚡ Action</button>
+      <button class="quiz-option" onclick="toggleQuizOption(this,'romance')">💕 Romance</button>
+      <button class="quiz-option" onclick="toggleQuizOption(this,'dark')">🌑 Dark</button>
+      <button class="quiz-option" onclick="toggleQuizOption(this,'comedy')">😄 Comedy</button>
+      <button class="quiz-option" onclick="toggleQuizOption(this,'fantasy')">🐉 Fantasy</button>
+      <button class="quiz-option" onclick="toggleQuizOption(this,'chill')">🍃 Chill</button>
+      <button class="quiz-option" onclick="toggleQuizOption(this,'scifi')">🚀 Sci-Fi</button>
+    </div>
+    <button class="btn-sm btn-sm-primary" onclick="runQuiz()">✦ Find My Anime</button>
+    <div class="quiz-result" id="quiz-result" style="margin-top:20px;display:none"></div>
+  </div>
+</div>
+
+<!-- WATCHLIST -->
+<section id="watchlist-section" style="display:none;" class="section" aria-label="Your watchlist">
+  <div class="section-header">
+    <div>
+      <span class="section-label">♥ Saved</span>
+      <h2 class="section-title">Your Watchlist</h2>
+    </div>
+    <button class="section-cta" onclick="clearWatchlist()">Clear All</button>
+  </div>
+  <div id="watchlist-cards" class="cards-row"></div>
+</section>
+
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div>
+      <div class="footer-brand-logo">ANIMEX</div>
+      <p class="footer-brand-desc">Your premium anime discovery hub. Find what to watch across all major legal streaming platforms.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Platforms</h4>
+      <ul>
+        <li><a href="https://crunchyroll.com" target="_blank" rel="noopener">Crunchyroll</a></li>
+        <li><a href="https://netflix.com" target="_blank" rel="noopener">Netflix</a></li>
+        <li><a href="https://primevideo.com" target="_blank" rel="noopener">Prime Video</a></li>
+        <li><a href="https://disneyplus.com" target="_blank" rel="noopener">Disney+</a></li>
+        <li><a href="https://hidive.com" target="_blank" rel="noopener">HIDIVE</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Discover</h4>
+      <ul>
+        <li><a href="#trending" onclick="smoothNav(event,'trending')">Trending</a></li>
+        <li><a href="#top-rated" onclick="smoothNav(event,'top-rated')">Top Rated</a></li>
+        <li><a href="#discover" onclick="smoothNav(event,'discover')">Explore</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 ANIMEX. Data by Jikan API. All rights to respective creators.</p>
+    <p>🛡️ Official &amp; legal streams only</p>
+  </div>
+</footer>
+
+<!-- MODAL -->
+<div id="modal-overlay" onclick="handleModalClick(event)" role="dialog" aria-modal="true" aria-hidden="true">
+  <div id="modal">
+    <div class="modal-hero">
+      <img id="modal-banner" src="" alt="" style="display:none" loading="lazy">
+      <div class="modal-hero-fade"></div>
+      <button class="modal-close" onclick="closeModal()" aria-label="Close">✕</button>
+      <div class="modal-hero-bottom">
+        <img id="modal-poster" class="modal-poster" src="" alt="" loading="lazy">
+        <div class="modal-hero-info">
+          <h2 class="modal-title" id="modal-title">Loading…</h2>
+          <div class="modal-title-jp" id="modal-title-jp"></div>
+          <div class="modal-badges" id="modal-badges"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div class="modal-actions" id="modal-actions"></div>
+      <div class="wtw-card" id="where-to-watch">
+        <div class="wtw-head">
+          <div class="wtw-title">📺 Where to Watch</div>
+          <div class="wtw-legal">Official &amp; legal only</div>
+        </div>
+        <div class="wtw-platforms" id="wtw-platforms"></div>
+        <div class="wtw-prefer" id="wtw-prefer" style="display:none"></div>
+        <div class="wtw-region">🌍 Availability varies by region.</div>
+      </div>
+      <div class="modal-section" id="modal-synopsis-section">
+        <div class="modal-section-label">Synopsis</div>
+        <p class="modal-synopsis" id="modal-synopsis"></p>
+      </div>
+      <div class="modal-section" id="modal-info-section">
+        <div class="modal-section-label">Details</div>
+        <div class="modal-info-grid" id="modal-info-grid"></div>
+      </div>
+      <div class="modal-section" id="modal-genres-section">
+        <div class="modal-section-label">Genres</div>
+        <div class="genre-tags" id="modal-genres"></div>
+      </div>
+      <div class="modal-section" id="modal-chars-section" style="display:none">
+        <div class="modal-section-label">Characters</div>
+        <div class="chars-row" id="modal-chars"></div>
+      </div>
+      <div class="modal-section" id="modal-recs-section" style="display:none">
+        <div class="modal-section-label">More Like This</div>
+        <div class="recs-row" id="modal-recs"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/state.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/api.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/watchlist.js"></script>
+<script src="js/app.js"></script>
+
+</body>
+</html>
+
