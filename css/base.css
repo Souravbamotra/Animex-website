@@ -4,6 +4,7 @@
 
 /* ─── VARIABLES ─── */
 :root {
+  color-scheme: dark;
   --bg-void: #050608;
   --bg-deep: #080a12;
   --bg-surface: rgba(12,14,24,0.9);

@@ -24,6 +24,84 @@ function hideLoader() {
   setTimeout(() => loader.style.display = 'none', 350);
 }
 
+/* ─── NEW ANIMATIONS ─── */
+function initParticles() {
+  if (Device.prefersReducedMotion) return;
+  const canvas = document.getElementById('particles-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let w, h;
+  const particles = [];
+  function resize() { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; }
+  window.addEventListener('resize', resize);
+  resize();
+  for(let i=0; i<60; i++) {
+    particles.push({
+      x: Math.random() * w, y: Math.random() * h,
+      r: Math.random() * 2 + 0.5,
+      vx: (Math.random() - 0.5) * 0.4, vy: (Math.random() - 0.5) * 0.4,
+      a: Math.random() * 0.4 + 0.1
+    });
+  }
+  function draw() {
+    ctx.clearRect(0, 0, w, h);
+    particles.forEach(p => {
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0 || p.x > w) p.vx *= -1;
+      if (p.y < 0 || p.y > h) p.vy *= -1;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(0, 229, 255, ${p.a})`;
+      ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function initHeroParallax() {
+  if (Device.prefersReducedMotion || typeof gsap === 'undefined') return;
+  const hero = document.getElementById('hero');
+  if (hero) {
+    hero.addEventListener('mousemove', (e) => {
+      const x = (e.clientX / window.innerWidth - 0.5) * 30;
+      const y = (e.clientY / window.innerHeight - 0.5) * 30;
+      gsap.to('#hsc-0', { x: x * 1.2, y: y * 1.2, duration: 1, ease: 'power2.out' });
+      gsap.to('#hsc-1', { x: x * 0.8, y: y * 0.8, duration: 1, ease: 'power2.out' });
+      gsap.to('#hsc-2', { x: x * 1.8, y: y * 1.8, duration: 1, ease: 'power2.out' });
+    });
+  }
+  gsap.to('.hero-stack-card', {
+    y: '-=12', duration: 2, yoyo: true, repeat: -1, ease: 'sine.inOut', stagger: 0.3
+  });
+}
+
+function animateCardsIn(container) {
+  if (typeof VanillaTilt !== 'undefined') {
+    const cards = container.querySelectorAll('.anime-card, .rec-card');
+    VanillaTilt.init(cards, { max: 12, speed: 400, glare: true, 'max-glare': 0.15, scale: 1.02 });
+  }
+  if (typeof gsap === 'undefined' || Device.prefersReducedMotion) return;
+  const cards = container.querySelectorAll('.anime-card, .rec-card');
+  gsap.fromTo(cards, 
+    { opacity: 0, y: 30 },
+    { opacity: 1, y: 0, duration: 0.5, stagger: 0.05, ease: 'power2.out', clearProps: 'all' }
+  );
+}
+
+function initScrollReveals() {
+  if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined' || Device.prefersReducedMotion) return;
+  gsap.registerPlugin(ScrollTrigger);
+  gsap.utils.toArray('.section, .mood-section, .quiz-section, .neon-sep').forEach(sec => {
+    sec.classList.add('reveal-on-scroll');
+    gsap.to(sec, {
+      scrollTrigger: { trigger: sec, start: 'top 85%' },
+      opacity: 1, y: 0, duration: 0.7, ease: 'power2.out',
+      onComplete: () => sec.classList.remove('reveal-on-scroll')
+    });
+  });
+}
+
 async function loadFeatured() {
   const data = await fetchAPI('/top/anime?filter=airing&limit=10');
   if (!data?.data?.length) return;
@@ -69,6 +147,10 @@ function setFeatured(idx) {
   document.getElementById('hero-badge-year').textContent = anime.year || '2024';
   document.getElementById('hero-badge-eps').textContent = anime.episodes ? anime.episodes + ' eps' : 'Ongoing';
   S.currentFeaturedId = anime.mal_id;
+  const trailerBtn = document.getElementById('hero-trailer-btn');
+  if (trailerBtn) {
+    trailerBtn.style.display = anime.trailer?.embed_url ? 'flex' : 'none';
+  }
   document.querySelectorAll('.hero-dot').forEach((d, i) => d.classList.toggle('active', i === idx));
 }
 
@@ -96,6 +178,7 @@ async function loadTrending() {
   const d = await fetchAPI('/top/anime?filter=airing&limit=14');
   if (!d) { el.innerHTML = '<p style="color:var(--t-dim);padding:20px">Failed to load</p>'; return; }
   el.innerHTML = d.data.map(a => renderCard(a, true)).join('');
+  animateCardsIn(el);
 }
 
 async function loadTopRated() {
@@ -107,6 +190,7 @@ async function loadTopRated() {
     return;
   }
   el.innerHTML = d.data.map(a => renderCard(a, true)).join('');
+  animateCardsIn(el);
 }
 
 let discoverData = [];
@@ -122,8 +206,13 @@ async function loadDiscover(reset = true) {
   else spinner.style.display = 'flex';
   const genre = document.getElementById('genre-filter').value;
   const sort = document.getElementById('sort-filter').value;
+  const studio = document.getElementById('studio-filter')?.value;
   let url = `/top/anime?limit=20&page=${S.discoverPage}`;
-  if (genre) url = `/anime?genres=${genre}&order_by=${sort}&limit=20&page=${S.discoverPage}`;
+  let params = `order_by=${sort}&limit=20&page=${S.discoverPage}`;
+  if (genre) params += `&genres=${genre}`;
+  if (studio) params += `&producers=${studio}`;
+  
+  if (genre || studio) url = `/anime?${params}`;
   else if (S.discoverFilter === 'airing') url = `/top/anime?filter=airing&limit=20&page=${S.discoverPage}`;
   else if (S.discoverFilter === 'movie') url = `/top/anime?filter=bypopularity&type=movie&limit=20&page=${S.discoverPage}`;
   else url = `/top/anime?order_by=${sort}&limit=20&page=${S.discoverPage}`;
@@ -150,6 +239,7 @@ async function loadDiscover(reset = true) {
     ? discoverData.map(a => renderCard(a, false)).join('')
     : '<div class="discover-empty">No anime matched these filters. Try a different genre or reset filters.</div>';
   else el.innerHTML += results.map(a => renderCard(a, false)).join('');
+  if (results.length) animateCardsIn(el);
   S.discoverPage++;
   updateLoadMoreButton();
   updateDiscoverSummary();
@@ -176,10 +266,11 @@ function updateDiscoverSummary() {
   }
   const genre = document.getElementById('genre-filter')?.selectedOptions[0]?.textContent || 'All Genres';
   const sort = document.getElementById('sort-filter')?.selectedOptions[0]?.textContent || 'Top Rated';
+  const studio = document.getElementById('studio-filter')?.selectedOptions[0]?.textContent || 'All Studios';
   const platform = document.getElementById('platform-filter')?.selectedOptions[0]?.textContent || 'All Platforms';
   const count = discoverData.length;
   text.textContent = count
-    ? `Showing ${count} anime - ${genre} - ${sort} - ${platform}`
+    ? `Showing ${count} anime - ${genre} - ${studio} - ${sort} - ${platform}`
     : 'Choose filters to discover anime.';
 }
 
@@ -190,6 +281,7 @@ function resetDiscoverFilters() {
   document.querySelectorAll('#discover-filters .filter-pill').forEach((b, i) => b.classList.toggle('active', i === 0));
   document.getElementById('genre-filter').value = '';
   document.getElementById('sort-filter').value = 'score';
+  document.getElementById('studio-filter').value = '';
   document.getElementById('platform-filter').value = '';
   loadDiscover();
 }
@@ -218,6 +310,25 @@ function applyMood(btn, mood) {
   showToast(`Mood: ${btn.querySelector('.mood-emoji').textContent} ${mood}`, 'info');
 }
 
+async function loadSchedule(day) {
+  const el = document.getElementById('schedule-cards');
+  if(!el) return;
+  el.innerHTML = renderSkeletons(6);
+  const d = await fetchAPI(`/schedules?filter=${day}&limit=12`);
+  if (!d?.data?.length) {
+    el.innerHTML = '<div class="section-empty"><p>No schedule found.</p></div>';
+    return;
+  }
+  el.innerHTML = d.data.map(a => renderCard(a, true)).join('');
+  animateCardsIn(el);
+}
+
+function setScheduleDay(btn, day) {
+  document.querySelectorAll('#schedule-filters .filter-pill').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  loadSchedule(day);
+}
+
 async function loadDailyPick() {
   const today = new Date();
   const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
@@ -239,7 +350,8 @@ async function loadDailyPick() {
       <p class="daily-desc">${escapeHtml(synopsis)}</p>
       <div class="daily-actions">
         <button class="btn-sm btn-sm-primary" onclick="openAnime(${anime.mal_id})">▶ Where to Watch</button>
-        <button class="btn-sm btn-sm-ghost" onclick="toggleWatchlist(${anime.mal_id},'${title.replace(/'/g,"\\'")}','${imgSafe}',${anime.score||0})">♡ Add to Watchlist</button>
+        ${anime.trailer?.embed_url ? `<button class="btn-sm btn-sm-primary" onclick="openAnimeTrailer(${anime.mal_id})">📺 Trailer</button>` : ''}
+        <button class="btn-sm btn-sm-ghost" onclick="toggleWatchlist(${anime.mal_id},'${title.replace(/'/g,"\\'")}','${imgSafe}',${anime.score||0}, ${anime.episodes||null})">♡ Add to Watchlist</button>
       </div>
       <div class="daily-countdown">Next pick in: <span id="daily-timer"></span></div>
     </div>`;
@@ -276,6 +388,7 @@ async function loadSmartRecs() {
   const d = await fetchAPI(`/anime/${latest.mal_id}/recommendations`);
   if (d?.data?.length) {
     el.innerHTML = d.data.slice(0, 10).map(r => renderCard(r.entry, true)).join('');
+    animateCardsIn(el);
   } else {
     section.style.display = 'none';
   }
@@ -391,6 +504,8 @@ async function openAnime(malId) {
   document.getElementById('modal-genres').innerHTML = '';
   document.getElementById('modal-chars-section').style.display = 'none';
   document.getElementById('modal-recs-section').style.display = 'none';
+  document.getElementById('modal-trailer-section').style.display = 'none';
+  document.getElementById('modal-trailer').src = '';
 
   const d = await fetchAPI(`/anime/${malId}/full`);
   if (!d?.data) { closeModal(); return; }
@@ -417,15 +532,25 @@ async function openAnime(malId) {
   const titleEsc = escapeHtml(anime.title || '').replace(/'/g, "\\'");
   const imgSafe = escapeHtml(imgUrl);
 
+  const hasTrailer = !!anime.trailer?.embed_url;
+
   document.getElementById('modal-actions').innerHTML = `
-    <button class="modal-btn modal-btn-primary" onclick="document.getElementById('where-to-watch').scrollIntoView({behavior:'smooth'})">📺 Where to Watch</button>
+    ${hasTrailer ? `<button class="modal-btn modal-btn-primary" onclick="document.getElementById('modal-trailer-section').scrollIntoView({behavior:'smooth'})">▶ Watch Trailer</button>` : ''}
+    <button class="modal-btn modal-btn-secondary" onclick="document.getElementById('where-to-watch').scrollIntoView({behavior:'smooth'})">📺 Where to Watch</button>
     <button class="modal-btn modal-btn-secondary ${inWl ? 'watchlisted' : ''}" id="modal-wl-btn"
-      onclick="toggleWatchlist(${anime.mal_id},'${titleEsc}','${imgSafe}',${anime.score || 0})">
+      onclick="toggleWatchlist(${anime.mal_id},'${titleEsc}','${imgSafe}',${anime.score || 0}, ${anime.episodes || null})">
       ${inWl ? '♥ In Watchlist' : '♡ Add to Watchlist'}
     </button>`;
 
   renderWhereToWatch(anime);
   document.getElementById('modal-synopsis').textContent = anime.synopsis || 'No synopsis available.';
+
+  if (anime.trailer?.embed_url) {
+    document.getElementById('modal-trailer-section').style.display = 'block';
+    let tUrl = anime.trailer.embed_url;
+    if (!tUrl.includes('autoplay=')) tUrl += (tUrl.includes('?') ? '&' : '?') + 'autoplay=1';
+    document.getElementById('modal-trailer').src = tUrl;
+  }
 
   const info = [
     ['Episodes', anime.episodes || '—'], ['Duration', anime.duration || '—'],
@@ -482,6 +607,14 @@ function closeModal() {
   ov.classList.remove('active');
   ov.setAttribute('aria-hidden', 'true');
   document.body.style.overflow = '';
+  document.getElementById('modal-trailer').src = '';
+}
+
+async function openAnimeTrailer(id) {
+  await openAnime(id);
+  setTimeout(() => {
+    document.getElementById('modal-trailer-section').scrollIntoView({behavior: 'smooth'});
+  }, 100);
 }
 function handleModalClick(e) { if (e.target === document.getElementById('modal-overlay')) closeModal(); }
 
@@ -535,9 +668,14 @@ window.addEventListener('load', async () => {
   animateLoaderCounter();
   setTimeout(hideLoader, 700);
 
+  initParticles();
+  initHeroParallax();
+  initScrollReveals();
+
   await Promise.all([
     loadFeatured(), loadTrending(), loadTopRated(),
-    loadDiscover(), loadDailyPick()
+    loadDiscover(), loadDailyPick(),
+    loadSchedule(new Date().toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase())
   ]);
   hideLoader();
   updateWatchlistUI();
@@ -545,4 +683,8 @@ window.addEventListener('load', async () => {
   if (S.recent.length) loadSmartRecs();
 
   if (USE_CURSOR) document.body.classList.add('has-custom-cursor');
+  
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js').catch(e => console.log('SW ref failed', e));
+  }
 });

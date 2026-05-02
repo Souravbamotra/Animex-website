@@ -14,7 +14,7 @@ function handleCardKey(event, malId) {
   openAnime(malId);
 }
 
-function renderCard(anime, inRow = true) {
+function renderCard(anime, inRow = true, isWatchlistContext = false) {
   const inWl = S.watchlist.some(a => a.mal_id === anime.mal_id);
   const platforms = detectPlatforms(anime);
   const badgesHTML = platforms.slice(0, 2).map(p => {
@@ -32,13 +32,13 @@ function renderCard(anime, inRow = true) {
       <div class="card-platform-tags">${badgesHTML}</div>
       ${scoreHTML}
       <button class="card-heart-btn ${inWl ? 'active' : ''}"
-        onclick="event.stopPropagation();toggleWatchlist(${anime.mal_id},'${title.replace(/'/g, "\\'")}','${imgUrl}',${anime.score || 0})"
+        onclick="event.stopPropagation();toggleWatchlist(${anime.mal_id},'${title.replace(/'/g, "\\'")}','${imgUrl}',${anime.score || 0}, ${anime.episodes || null})"
         aria-label="${inWl ? 'Remove from watchlist' : 'Add to watchlist'}">
         ${inWl ? '&hearts;' : '&#9825;'}
       </button>
       <div class="card-overlay">
         <div class="card-overlay-btns">
-          <button class="card-btn card-btn-watch" onclick="event.stopPropagation();openAnime(${anime.mal_id})">Where</button>
+          <button class="card-btn card-btn-watch" onclick="event.stopPropagation();openAnimeTrailer(${anime.mal_id})">Watch Trailer</button>
           <button class="card-btn card-btn-info" onclick="event.stopPropagation();openAnime(${anime.mal_id})">Info</button>
         </div>
       </div>
@@ -47,6 +47,11 @@ function renderCard(anime, inRow = true) {
       <div class="card-score-row">${anime.score ? '&#9733; ' + anime.score : ''}</div>
       <div class="card-title">${title}</div>
       <div class="card-meta">${anime.type || '?'}${anime.episodes ? ' - ' + anime.episodes + ' eps' : ''}${anime.year ? ' - ' + anime.year : ''}</div>
+      ${isWatchlistContext ? `<div class="ep-tracker" onclick="event.stopPropagation()">
+        <button onclick="updateEpisode(${anime.mal_id}, -1)">-</button>
+        <span>Ep: ${anime.episodes_watched || 0} / ${anime.episodes || '?'}</span>
+        <button onclick="updateEpisode(${anime.mal_id}, 1)">+</button>
+      </div>` : ''}
     </div>
   </div>`;
 }

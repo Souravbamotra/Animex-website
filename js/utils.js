@@ -10,6 +10,14 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
+function debounce(func, wait) {
+  let timeout;
+  return function(...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), wait);
+  };
+}
+
 function safeImage(url, alt) {
   const safeUrl = escapeHtml(url || '');
   const safeAlt = escapeHtml(alt || '');

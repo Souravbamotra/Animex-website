@@ -28,7 +28,7 @@ async function fetchAPI(endpoint) {
   const cached = S.cache[endpoint];
   if (cached && Date.now() - cached.timestamp < CACHE_TTL) return cached.data;
 
-  for (let attempt = 0; attempt < 3; attempt++) {
+  for (let attempt = 0; attempt < 4; attempt++) {
     try {
       const res = await scheduleApiRequest(() => fetch(API_BASE + endpoint));
       if (res.status === 429 || res.status >= 500) {
@@ -46,11 +46,12 @@ async function fetchAPI(endpoint) {
       S.cache[endpoint] = { data: d, timestamp: Date.now() };
       return d;
     } catch (e) {
-      if (attempt === 2) {
+      if (attempt === 3) {
         console.error('API:', endpoint, e);
         return null;
       }
-      await sleep(700 * (attempt + 1));
+      // Exponential backoff
+      await sleep(1000 * Math.pow(2, attempt));
     }
   }
   return null;

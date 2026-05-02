@@ -469,8 +469,10 @@
   background-repeat: no-repeat; background-position: right 12px center;
   background-color: var(--bg-glass);
   min-height: 36px;
+  color-scheme: dark;
 }
 .filter-select:focus { outline: none; border-color: var(--border-hover); }
+.filter-select option { background-color: #0d0d14; color: #fff; }
 
 @media (max-width: 640px) {
   .discover-summary {
