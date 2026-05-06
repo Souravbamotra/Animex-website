@@ -1,0 +1,82 @@
+/* ═══════════════════════════════════════════════
+   ANIMEX v5 — ANIMATIONS
+═══════════════════════════════════════════════ */
+
+/* ─── ENTRY ─── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.94); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(32px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.animate-fadeInUp   { animation: fadeInUp 0.5s var(--ease) both; }
+.animate-fadeIn     { animation: fadeIn 0.4s ease both; }
+.animate-scaleIn    { animation: scaleIn 0.4s var(--ease) both; }
+.animate-slideInRight { animation: slideInRight 0.4s var(--ease) both; }
+
+/* stagger helpers */
+.stagger-1  { animation-delay: 0.05s; }
+.stagger-2  { animation-delay: 0.10s; }
+.stagger-3  { animation-delay: 0.15s; }
+.stagger-4  { animation-delay: 0.20s; }
+.stagger-5  { animation-delay: 0.25s; }
+.stagger-6  { animation-delay: 0.30s; }
+
+/* ─── REVEAL ON SCROLL ─── */
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s var(--ease), transform 0.6s var(--ease);
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ─── FLOAT (hero cards) ─── */
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(var(--rot)); }
+  50%       { transform: translateY(-10px) rotate(var(--rot)); }
+}
+
+/* ─── TICKER ─── */
+@keyframes ticker {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.ticker-track {
+  display: flex; gap: 40px;
+  animation: ticker 30s linear infinite;
+  width: max-content;
+}
+.ticker-track:hover { animation-play-state: paused; }
+
+/* ─── MODAL OPEN ─── */
+@keyframes modalOpen {
+  from { opacity: 0; transform: scale(0.96) translateY(12px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* ─── HERO TEXT ─── */
+@keyframes heroTextIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── PULSE GLOW ─── */
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 12px rgba(0,229,255,0.2); }
+  50%       { box-shadow: 0 0 28px rgba(0,229,255,0.5); }
+}
+.pulse-glow { animation: pulseGlow 2.5s ease-in-out infinite; }

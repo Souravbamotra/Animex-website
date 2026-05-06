@@ -1,0 +1,25 @@
+.card {
+  border-radius: var(--radius);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.inRow {
+  width: clamp(140px, 18vw, 175px);
+  scroll-snap-align: start;
+}
+.inGrid { width: 100%; }
+
+.body {
+  padding: 10px 10px 12px;
+  display: flex; flex-direction: column; gap: 5px;
+}
+
+.genreRow {
+  display: flex; gap: 4px; margin-top: 2px;
+}
+.pill {
+  height: 18px; border-radius: var(--radius-pill);
+  margin-top: 0 !important;
+}

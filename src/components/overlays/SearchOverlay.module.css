@@ -1,0 +1,72 @@
+.overlay {
+  position: fixed; inset: 0; z-index: 9000;
+  background: rgba(5,6,10,0.85); backdrop-filter: blur(24px);
+  display: flex; align-items: flex-start; justify-content: center;
+  padding-top: clamp(60px, 12vh, 120px);
+  animation: fadeIn 0.25s ease both;
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.wrap {
+  width: min(640px, 92vw);
+  animation: slideDown 0.3s var(--ease) both;
+}
+@keyframes slideDown { from { opacity: 0; transform: translateY(-16px); } to { opacity: 1; transform: translateY(0); } }
+
+.field {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 18px;
+  background: rgba(14,16,28,0.96);
+  border: 1px solid rgba(0,229,255,0.3);
+  border-radius: var(--radius);
+  box-shadow: 0 0 40px rgba(0,229,255,0.1), 0 20px 60px rgba(0,0,0,0.5);
+  color: var(--t-dim);
+}
+.field:focus-within { border-color: var(--c-cyan); }
+.input {
+  flex: 1; background: none; border: none; outline: none;
+  color: var(--t-primary); font-size: 1.1rem; font-family: var(--font-body);
+}
+.input::placeholder { color: var(--t-dim); }
+.close {
+  color: var(--t-dim); font-size: 1rem;
+  transition: color 0.2s;
+}
+.close:hover { color: var(--t-primary); }
+
+.hint {
+  padding: 8px 4px;
+  font-size: 0.75rem; color: var(--t-dim);
+}
+.kbd {
+  display: inline-block; padding: 2px 5px;
+  border: 1px solid var(--border); border-radius: 3px;
+  background: var(--bg-glass); font-size: 0.7rem;
+  font-family: var(--font-body);
+}
+
+.suggestions {
+  margin-top: 8px;
+  background: rgba(12,14,24,0.98);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+.suggestion {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 14px; cursor: pointer;
+  transition: background 0.15s;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+.suggestion:last-child { border-bottom: none; }
+.suggestion:hover { background: rgba(0,229,255,0.04); }
+.sugImg { width: 36px; height: 50px; object-fit: cover; border-radius: 4px; flex-shrink: 0; }
+.sugInfo { flex: 1; min-width: 0; }
+.sugTitle { font-size: 0.88rem; font-weight: 500; color: var(--t-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sugMeta  { font-size: 0.72rem; color: var(--t-dim); margin-top: 2px; font-variant-numeric: tabular-nums; }
+.sugBadge {
+  padding: 2px 7px; border-radius: 3px; font-size: 0.62rem; font-weight: 700;
+  border: 1px solid color-mix(in srgb, var(--brand) 40%, transparent);
+  background: color-mix(in srgb, var(--brand) 10%, transparent);
+  color: color-mix(in srgb, var(--brand) 90%, #fff);
+  flex-shrink: 0;
+}

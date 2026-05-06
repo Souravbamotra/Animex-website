@@ -1,0 +1,20 @@
+.section {
+  padding: var(--space-section) var(--space-section-x);
+  background: var(--bg-alt);
+}
+.card {
+  display: flex; gap: 24px; align-items: flex-start;
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px; max-width: 800px;
+}
+.posterWrap { flex-shrink: 0; }
+.poster { width: 110px; aspect-ratio: 2/3; object-fit: cover; border-radius: var(--radius-sm); border: 1px solid var(--border); }
+.info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.label { font-size: 0.7rem; color: var(--c-gold); text-transform: uppercase; letter-spacing: 0.12em; font-weight: 600; }
+.title { font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; }
+.score { font-size: 0.85rem; color: var(--c-gold); font-variant-numeric: tabular-nums; }
+.desc { font-size: 0.85rem; color: var(--t-secondary); line-height: 1.6; }
+.actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.watchlisted { color: var(--c-pink) !important; border-color: var(--c-pink) !important; }
+.countdown { font-size: 0.75rem; color: var(--t-dim); }
+@media (max-width: 600px) { .card { flex-direction: column; } .poster { width: 100%; max-width: 120px; } }

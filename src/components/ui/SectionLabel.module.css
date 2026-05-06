@@ -1,0 +1,16 @@
+.wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding-left: 10px;
+  border-left: 3px solid var(--accent, var(--c-cyan));
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--t-secondary);
+  font-variant-numeric: tabular-nums;
+}
+.icon { font-size: 0.85em; }
+.text { color: var(--accent, var(--c-cyan)); }

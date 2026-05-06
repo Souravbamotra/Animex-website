@@ -1,0 +1,22 @@
+.nav {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 900;
+  display: none; /* hidden on desktop */
+  background: rgba(5, 6, 10, 0.92);
+  backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border);
+  padding: 8px 0 env(safe-area-inset-bottom, 0);
+}
+.btn {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; gap: 3px; padding: 6px 4px;
+  color: var(--t-dim); font-size: 0.6rem;
+  font-family: var(--font-body); font-weight: 500;
+  transition: color 0.2s;
+}
+.btn:hover, .btn.active { color: var(--c-cyan); }
+.icon { font-size: 1.2rem; line-height: 1; }
+.label { letter-spacing: 0.04em; }
+
+@media (max-width: 768px) {
+  .nav { display: flex; }
+}

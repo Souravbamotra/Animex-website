@@ -1,0 +1,78 @@
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+  height: var(--nav-h);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 var(--space-section-x);
+  background: transparent;
+  transition: background 0.3s, backdrop-filter 0.3s, box-shadow 0.3s;
+}
+.nav.scrolled {
+  background: rgba(5, 6, 10, 0.88);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 1px 0 rgba(0, 229, 255, 0.08);
+}
+
+.logo {
+  font-family: var(--font-display);
+  font-size: 1.25rem; font-weight: 800;
+  letter-spacing: 0.12em;
+  background: linear-gradient(135deg, var(--c-cyan), var(--c-violet));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  cursor: pointer;
+}
+
+.center {
+  display: flex; gap: 4px; align-items: center;
+}
+
+/* Active nav link — white text on translucent cyan (readable) */
+.link {
+  padding: 6px 14px; border-radius: var(--radius-pill);
+  font-size: 0.85rem; font-weight: 500; font-family: var(--font-body);
+  color: var(--t-secondary);
+  transition: all 0.2s;
+  border: 1px solid transparent;
+}
+.link:hover { color: var(--t-primary); }
+.link.active {
+  color: #fff;
+  background: rgba(0, 229, 255, 0.18);
+  border: 1px solid rgba(0, 229, 255, 0.45);
+}
+
+.right {
+  display: flex; gap: 8px; align-items: center;
+}
+
+.iconBtn {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--t-secondary);
+  border: 1px solid var(--border);
+  background: var(--bg-glass);
+  transition: all 0.2s;
+}
+.iconBtn:hover { color: var(--c-cyan); border-color: var(--c-cyan); background: rgba(0,229,255,0.06); }
+
+.watchlistBtn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 7px 14px; border-radius: var(--radius-pill);
+  border: 1px solid var(--border-pink);
+  background: rgba(255, 26, 108, 0.06);
+  color: var(--c-pink);
+  font-size: 0.82rem; font-weight: 600; font-family: var(--font-body);
+  transition: all 0.2s;
+}
+.watchlistBtn:hover { background: rgba(255, 26, 108, 0.12); }
+
+.badge {
+  background: var(--c-pink);
+  color: #fff; font-size: 0.65rem; font-weight: 700;
+  padding: 1px 5px; border-radius: var(--radius-pill);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 768px) {
+  .center { display: none; }
+  .logo { font-size: 1.1rem; }
+}

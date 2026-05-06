@@ -1,0 +1,52 @@
+.section {
+  padding: 40px var(--space-section-x);
+  text-align: center;
+  background: var(--bg-alt);
+}
+.heading {
+  font-family: var(--font-display); font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+  font-weight: 600; margin-bottom: 20px; color: var(--t-secondary);
+}
+.heading em { color: var(--c-cyan); font-style: normal; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 9px 18px; border-radius: var(--radius-pill);
+  border: 1px solid var(--border); background: var(--bg-glass);
+  color: var(--t-secondary); font-size: 0.85rem; font-family: var(--font-body);
+  transition: all 0.22s; cursor: pointer;
+}
+.btn:hover { border-color: var(--c-cyan); color: var(--c-cyan); background: rgba(0,229,255,0.06); }
+.active {
+  color: #fff !important;
+  background: rgba(0,229,255,0.15) !important;
+  border-color: rgba(0,229,255,0.5) !important;
+}
+.emoji { font-size: 1rem; }
+
+/* Platform ticker */
+.ticker {
+  overflow: hidden; padding: 14px 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  background: rgba(255,255,255,0.008);
+}
+.tickerTrack {
+  display: flex; gap: 48px; width: max-content;
+  animation: ticker 30s linear infinite;
+}
+.tickerTrack:hover { animation-play-state: paused; }
+@keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.tickerItem {
+  display: flex; align-items: center; gap: 8px;
+  font-family: var(--font-body); font-size: 0.75rem;
+  font-weight: 700; letter-spacing: 0.14em; white-space: nowrap;
+  opacity: 0.6;
+}
+.tickerDot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+.netflix    { color: var(--netflix); }
+.crunchyroll{ color: var(--crunchyroll); }
+.prime      { color: var(--prime); }
+.disney     { color: var(--disney); }
+.hidive     { color: var(--hidive); }
+.youtube    { color: var(--youtube); }

@@ -1,0 +1,10 @@
+.header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 24px; }
+.controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.malInput {
+  padding: 6px 10px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border); background: var(--bg-glass);
+  color: var(--t-primary); font-size: 0.75rem; width: 130px;
+  font-family: var(--font-body); outline: none;
+  transition: border-color 0.2s;
+}
+.malInput:focus { border-color: var(--c-cyan); }

@@ -1,0 +1,13 @@
+.summary { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; gap: 10px; }
+.summaryText { font-size: 0.8rem; color: var(--t-dim); font-variant-numeric: tabular-nums; }
+.resetBtn { font-size: 0.76rem; color: var(--c-cyan); transition: opacity 0.2s; }
+.resetBtn:hover { opacity: 0.75; }
+.loadMore { display: flex; justify-content: center; margin-top: 32px; }
+.loadMoreBtn {
+  padding: 12px 32px; border-radius: var(--radius-pill);
+  border: 1px solid var(--border); color: var(--t-secondary);
+  font-size: 0.88rem; font-family: var(--font-body);
+  transition: all 0.2s;
+}
+.loadMoreBtn:hover:not(:disabled) { border-color: var(--c-cyan); color: var(--c-cyan); }
+.loadMoreBtn:disabled { opacity: 0.4; cursor: not-allowed; }
