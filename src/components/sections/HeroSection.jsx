@@ -9,11 +9,13 @@ export default function HeroSection() {
   const [featured, setFeatured]   = useState([]);
   const [idx, setIdx]             = useState(0);
   const [transitioning, setTrans] = useState(false);
+  const [error, setError]         = useState(false);
   const intervalRef               = useRef(null);
 
   useEffect(() => {
     fetchAPI('/top/anime?filter=airing&limit=10').then(d => {
       const list = (d?.data || []).filter(a => a.images?.jpg?.large_image_url);
+      if (!list.length) { setError(true); return; }
       setFeatured(list);
     });
   }, []);
@@ -23,33 +25,56 @@ export default function HeroSection() {
     setTimeout(() => { setIdx(i); setTrans(false); }, 300);
   }, []);
 
+  // FIX: use functional state updater — no more IIFE/stale idx closure
+  // FIX: remove idx from deps so interval doesn't reset every slide change
   useEffect(() => {
     if (!featured.length) return;
     intervalRef.current = setInterval(() => {
-      goTo((prev => (prev + 1) % featured.length)(idx));
+      setIdx(prev => (prev + 1) % featured.length);
     }, 7000);
     return () => clearInterval(intervalRef.current);
-  }, [featured.length, idx, goTo]);
+  }, [featured.length]);
 
   const anime = featured[idx];
 
-  const handleWatch = async () => {
+  // FIX: merged handleWatch & handleTrailer into one function with a param
+  const handleOpen = useCallback(async (scrollToTrailer = false) => {
     if (!anime) return;
     const d = await fetchAPI(`/anime/${anime.mal_id}/full`);
-    if (d?.data) { openModal(d.data); addToRecent(d.data); }
-    else if (anime) { openModal(anime); addToRecent(anime); }
-  };
-
-  const handleTrailer = async () => {
-    if (!anime) return;
-    const d = await fetchAPI(`/anime/${anime.mal_id}/full`);
-    if (d?.data) {
-      openModal(d.data); addToRecent(d.data);
+    const data = d?.data || anime;
+    openModal(data);
+    addToRecent(data);
+    if (scrollToTrailer) {
       setTimeout(() => document.getElementById('modal-trailer-anchor')?.scrollIntoView({ behavior: 'smooth' }), 300);
     }
-  };
+  }, [anime, openModal, addToRecent]);
 
   const bg = anime?.images?.jpg?.large_image_url || anime?.images?.jpg?.image_url || '';
+
+  if (error) {
+    return (
+      <section id="hero" className={styles.hero} aria-label="Featured anime">
+        <div className={styles.gradient} />
+        <div className={styles.content}>
+          <div className={styles.left}>
+            {/* FIX: stable h1 for SEO — anime title moves to h2/div */}
+            <h1 className={styles.titleMain} style={{ marginBottom: '12px' }}>
+              Discover Your Next Anime Obsession
+            </h1>
+            <p className={styles.desc}>Find what to watch across all major legal streaming platforms.</p>
+            <div className={styles.actions}>
+              <button
+                className={`btn-primary ${styles.primaryBtn}`}
+                onClick={() => document.getElementById('discover')?.scrollIntoView({ behavior: 'smooth' })}
+              >
+                <span className="btn-icon">✦</span> Explore Anime
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="hero" className={styles.hero} aria-label="Featured anime">
@@ -68,10 +93,11 @@ export default function HeroSection() {
             <span>Featured Anime · Now Airing</span>
           </div>
 
+          {/* FIX: stable h1 for SEO — always describes the page purpose */}
           <h1 className={`${styles.title} ${transitioning ? styles.titleOut : styles.titleIn}`}>
-            <span className={styles.titleMain}>{anime?.title || 'Discover Your Next'}</span>
+            <span className={styles.titleMain}>Discover Your Next Anime</span>
             <span className={styles.titleAccent}>
-              {anime?.genres?.slice(0, 2).map(g => g.name).join(' · ') || 'Anime Obsession'}
+              {anime?.title || 'Loading…'}
             </span>
             {anime?.title_japanese && (
               <span className={styles.titleJp}>{anime.title_japanese}</span>
@@ -98,11 +124,11 @@ export default function HeroSection() {
           </div>
 
           <div className={styles.actions}>
-            <button className={`btn-primary ${styles.primaryBtn}`} onClick={handleWatch}>
+            <button className={`btn-primary ${styles.primaryBtn}`} onClick={() => handleOpen(false)}>
               <span className="btn-icon">▶</span> Where to Watch
             </button>
             {anime?.trailer?.embed_url && (
-              <button className={`btn-secondary ${styles.secondaryBtn}`} onClick={handleTrailer}>
+              <button className={`btn-secondary ${styles.secondaryBtn}`} onClick={() => handleOpen(true)}>
                 <span className="btn-icon">📺</span> Trailer
               </button>
             )}
@@ -121,13 +147,13 @@ export default function HeroSection() {
                 key={i}
                 className={`${styles.dot2} ${i === idx ? styles.dotActive : ''}`}
                 onClick={() => { clearInterval(intervalRef.current); goTo(i); }}
-                aria-label={`Featured item ${i + 1}`}
+                aria-label={`Show featured anime ${i + 1}`}
               />
             ))}
           </div>
         </div>
 
-        {/* Stack cards */}
+        {/* Stack cards — hidden below 900px via CSS */}
         <div className={styles.right} aria-hidden="true">
           {featured.slice(1, 4).map((a, i) => {
             const configs = [

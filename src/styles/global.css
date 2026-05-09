@@ -214,10 +214,11 @@ img { display: block; max-width: 100%; }
   margin-bottom: 20px; align-items: center;
 }
 .filter-pill {
-  padding: 6px 14px; border-radius: var(--radius-pill);
+  padding: 8px 16px; border-radius: var(--radius-pill);
   border: 1px solid var(--border); color: var(--t-secondary);
   font-size: 0.8rem; font-family: var(--font-body);
   transition: all 0.2s; cursor: pointer;
+  min-height: 36px; /* touch target improvement */
 }
 .filter-pill:hover { border-color: var(--c-cyan); color: var(--c-cyan); }
 .filter-pill.active {

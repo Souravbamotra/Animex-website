@@ -21,10 +21,25 @@ export default function Navbar({ onRandomAnime }) {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // FIX: IntersectionObserver to sync active nav with scroll position
+  useEffect(() => {
+    const observers = [];
+    SECTIONS.forEach(({ id }) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const obs = new IntersectionObserver(
+        ([entry]) => { if (entry.isIntersecting) setActiveSection(id); },
+        { rootMargin: '-40% 0px -55% 0px' }
+      );
+      obs.observe(el);
+      observers.push(obs);
+    });
+    return () => observers.forEach(o => o.disconnect());
+  }, []);
+
   const scrollTo = (id, e) => {
     e?.preventDefault();
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
-    setActiveSection(id);
   };
 
   return (
@@ -34,7 +49,7 @@ export default function Navbar({ onRandomAnime }) {
       role="navigation"
       aria-label="Main navigation"
     >
-      <div className={styles.logo}>ANIMEX</div>
+      <div className={styles.logo} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>ANIMEX</div>
 
       <div className={styles.center}>
         {SECTIONS.map(s => (
@@ -54,7 +69,7 @@ export default function Navbar({ onRandomAnime }) {
           className={styles.iconBtn}
           onClick={toggleSearch}
           title="Search (Ctrl+K)"
-          aria-label="Search"
+          aria-label="Search anime"
         >
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
             <circle cx="11" cy="11" r="8" />
@@ -66,7 +81,7 @@ export default function Navbar({ onRandomAnime }) {
           className={styles.iconBtn}
           onClick={onRandomAnime}
           title="Random Anime"
-          aria-label="Random Anime"
+          aria-label="Open random anime"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22"/>
@@ -80,7 +95,7 @@ export default function Navbar({ onRandomAnime }) {
         <button
           className={styles.watchlistBtn}
           onClick={() => document.getElementById('watchlist-section')?.scrollIntoView({ behavior: 'smooth' })}
-          aria-label="My Watchlist"
+          aria-label={`My Watchlist — ${watchlist.length} saved`}
         >
           <span>♥ List</span>
           {watchlist.length > 0 && (

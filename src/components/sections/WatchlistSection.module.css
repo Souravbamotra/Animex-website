@@ -8,3 +8,27 @@
   transition: border-color 0.2s;
 }
 .malInput:focus { border-color: var(--c-cyan); }
+
+/* Empty state */
+.emptyState {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 56px 24px; text-align: center;
+  border: 1px dashed var(--border-pink);
+  border-radius: var(--radius);
+  background: rgba(255, 26, 108, 0.03);
+}
+.emptyIcon {
+  font-size: 3rem; color: var(--c-pink);
+  opacity: 0.4; margin-bottom: 16px;
+  line-height: 1;
+}
+.emptyTitle {
+  font-family: var(--font-display); font-size: 1.1rem;
+  font-weight: 700; color: var(--t-primary);
+  margin-bottom: 8px;
+}
+.emptyDesc {
+  font-size: 0.88rem; color: var(--t-secondary);
+  line-height: 1.6; max-width: 340px;
+}

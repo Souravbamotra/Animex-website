@@ -1,13 +1,9 @@
-/* ANIMEX v5 — ANIME MODAL (improved: taller banner, better brightness) */
+/* ANIMEX v5 — ANIME MODAL */
 import { useEffect, useRef, useState } from 'react';
 import { useAppStore } from '../../store/useAppStore.js';
 import { fetchAPI } from '../../lib/api.js';
 import { detectPlatforms, PLATFORMS } from '../../lib/config.js';
 import styles from './AnimeModal.module.css';
-
-function escHtml(str) {
-  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
 
 export default function AnimeModal() {
   const { modalOpen, currentAnime, closeModal, watchlist, toggleWatchlist, preferredPlatform, setPreferredPlatform, clearPreferredPlatform, addToast, openModal, addToRecent } = useAppStore();
@@ -61,13 +57,13 @@ export default function AnimeModal() {
     ? [...platforms].sort((a, b) => a.key === preferredPlatform ? -1 : b.key === preferredPlatform ? 1 : 0)
     : platforms;
 
+  // FIX: use Zustand store state instead of direct DOM manipulation
   const watchOn = (key, url, name, isFallback) => {
-    const el = document.getElementById('redirect-overlay-el');
-    if (el) {
-      el.querySelector('.redirect-platform-name').textContent = name;
-      el.classList.add('active');
-      setTimeout(() => { el.classList.remove('active'); window.open(url, '_blank', 'noopener'); }, 1000);
-    } else window.open(url, '_blank', 'noopener');
+    useAppStore.getState().setRedirecting(name);
+    setTimeout(() => {
+      useAppStore.getState().setRedirecting(null);
+      window.open(url, '_blank', 'noopener');
+    }, 1000);
     addToast(`${isFallback ? 'Searching on' : 'Opening'} ${name}...`, 'info');
   };
 
@@ -271,7 +267,10 @@ export default function AnimeModal() {
                     key={r.entry.mal_id}
                     className={styles.recCard}
                     onClick={() => openRec(r.entry.mal_id)}
+                    // FIX: added keyboard handler for WCAG 2.1 SC 2.1.1 compliance
+                    onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && openRec(r.entry.mal_id)}
                     role="button" tabIndex={0}
+                    aria-label={`More like this: ${r.entry.title}`}
                   >
                     <img
                       src={r.entry.images?.jpg?.image_url || ''}

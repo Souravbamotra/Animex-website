@@ -53,7 +53,7 @@ function initParticles() {
 }
 
 export default function App() {
-  const { openModal, addToRecent, addToast, toggleSearch } = useAppStore();
+  const { openModal, addToRecent, addToast, toggleSearch, redirectingTo } = useAppStore();
   const loaderRef = useRef(null);
 
   useEffect(() => {
@@ -100,11 +100,16 @@ export default function App() {
       {/* Canvas */}
       <canvas id="particles-canvas" aria-hidden="true" style={{ position:'fixed',inset:0,zIndex:0,pointerEvents:'none',opacity:0.4 }} />
 
-      {/* Redirect overlay */}
-      <div id="redirect-overlay-el" className="redirect-overlay" aria-hidden="true">
+      {/* Redirect overlay — driven by Zustand state, not direct DOM mutation */}
+      <div
+        id="redirect-overlay-el"
+        className={`redirect-overlay ${redirectingTo ? 'active' : ''}`}
+        aria-hidden="true"
+        aria-live="polite"
+      >
         <div className="redirect-ring" />
         <div className="redirect-label">Redirecting to</div>
-        <div className="redirect-platform redirect-platform-name" />
+        <div className="redirect-platform redirect-platform-name">{redirectingTo}</div>
       </div>
 
       {/* Achievement popup */}

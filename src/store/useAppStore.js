@@ -10,18 +10,16 @@ export const useAppStore = create((set, get) => ({
   preferredPlatform: safeGet('animex_pref', 'null'),
 
   /* ─── Transient state ─── */
-  featuredList: [],
-  featuredIdx: 0,
   discoverFilter: 'all',
   discoverPage: 1,
   discoverLoading: false,
   hasMoreDiscover: true,
   moodActive: null,
-  quizSelections: new Set(),
   currentAnime: null,
   modalOpen: false,
   searchOpen: false,
   toasts: [],
+  redirectingTo: null, // FIX: replaces direct DOM manipulation on redirect overlay
 
   /* ─── Achievement popup ─── */
   achievement: null,
@@ -80,7 +78,7 @@ export const useAppStore = create((set, get) => ({
     get().addToast('Watchlist imported!', 'success');
   },
 
-  /* ─── Recent / Smart recs ─── */
+  /* ─── Recent ─── */
   addToRecent(anime) {
     const recent = [...get().recent].filter(a => a.mal_id !== anime.mal_id);
     recent.unshift({ mal_id: anime.mal_id, title: anime.title, images: anime.images, score: anime.score, type: anime.type });
@@ -106,9 +104,8 @@ export const useAppStore = create((set, get) => ({
     set({ preferredPlatform: null });
   },
 
-  /* ─── Featured hero ─── */
-  setFeaturedList(list) { set({ featuredList: list }); },
-  setFeaturedIdx(idx)   { set({ featuredIdx: idx }); },
+  /* ─── Redirect overlay (replaces DOM manipulation) ─── */
+  setRedirecting(platformName) { set({ redirectingTo: platformName }); },
 
   /* ─── Discover ─── */
   setDiscoverFilter(f)    { set({ discoverFilter: f, discoverPage: 1 }); },
@@ -124,13 +121,6 @@ export const useAppStore = create((set, get) => ({
   /* ─── Search ─── */
   toggleSearch()  { set(s => ({ searchOpen: !s.searchOpen })); },
   closeSearch()   { set({ searchOpen: false }); },
-
-  /* ─── Quiz ─── */
-  toggleQuizOption(val) {
-    const qs = new Set(get().quizSelections);
-    qs.has(val) ? qs.delete(val) : qs.add(val);
-    set({ quizSelections: qs });
-  },
 
   /* ─── Toasts ─── */
   addToast(msg, type = 'info') {

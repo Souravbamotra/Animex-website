@@ -7,14 +7,16 @@ import styles from './DailyPick.module.css';
 
 export default function DailyPick() {
   const { openModal, addToRecent, toggleWatchlist, watchlist } = useAppStore();
-  const [anime, setAnime]     = useState(null);
+  const [anime, setAnime]         = useState(null);
   const [countdown, setCountdown] = useState('');
+  const [error, setError]         = useState(false);
 
   useEffect(() => {
     const today = new Date();
     const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
     fetchAPI(`/top/anime?limit=25&page=${(seed % 5) + 1}`).then(d => {
-      if (d?.data?.length) setAnime(d.data[seed % d.data.length]);
+      if (!d?.data?.length) { setError(true); return; }
+      setAnime(d.data[seed % d.data.length]);
     });
 
     const tick = () => {
@@ -31,7 +33,11 @@ export default function DailyPick() {
     return () => clearInterval(iv);
   }, []);
 
-  if (!anime) return null;
+  // Don't render if no data and no error (loading) — avoids flash of empty
+  if (!anime && !error) return null;
+
+  if (error) return null; // Silently skip on error rather than showing broken UI
+
   const inWl  = watchlist.some(a => a.mal_id === anime.mal_id);
   const img   = anime.images?.jpg?.image_url || '';
   const date  = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric' });

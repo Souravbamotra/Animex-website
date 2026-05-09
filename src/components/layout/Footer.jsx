@@ -30,7 +30,7 @@ export default function Footer() {
         </div>
       </div>
       <div className={styles.bottom}>
-        <p>© 2025 ANIMEX. Data by Jikan API. All rights to respective creators.</p>
+        <p>© {new Date().getFullYear()} ANIMEX. Data by Jikan API. All rights to respective creators.</p>
         <p><span style={{ color: 'var(--c-green)' }}>✓</span> Official &amp; legal streams only</p>
       </div>
     </footer>

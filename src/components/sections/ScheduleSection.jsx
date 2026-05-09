@@ -13,10 +13,13 @@ export default function ScheduleSection() {
   const [activeDay, setActiveDay] = useState(today);
   const [animes, setAnimes]       = useState([]);
   const [loading, setLoading]     = useState(true);
+  const [error, setError]         = useState(false);
 
   useEffect(() => {
     setLoading(true);
+    setError(false);
     fetchAPI(`/schedules?filter=${activeDay}&limit=12`).then(d => {
+      if (!d) { setError(true); setLoading(false); return; }
       setAnimes(d?.data || []);
       setLoading(false);
     });
@@ -41,10 +44,12 @@ export default function ScheduleSection() {
           </button>
         ))}
       </div>
-      {loading ? <SkeletonRow count={6} /> : (
+      {loading ? <SkeletonRow count={6} /> : error ? (
+        <div className="section-empty">Failed to load schedule. Check your connection.</div>
+      ) : (
         <div className="cards-row">
           {animes.map(a => <AnimeCard key={a.mal_id} anime={a} inRow />)}
-          {animes.length === 0 && <div className="section-empty">No schedule found.</div>}
+          {animes.length === 0 && <div className="section-empty">No anime airing on this day.</div>}
         </div>
       )}
     </section>
